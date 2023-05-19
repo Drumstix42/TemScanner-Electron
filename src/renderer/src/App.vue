@@ -1,89 +1,123 @@
-<script setup>
-import Versions from './components/Versions.vue';
-</script>
-
 <template>
-    <Versions></Versions>
-
-    <svg class="hero-logo" viewBox="0 0 900 300">
-        <use xlink:href="./assets/icons.svg#electron" />
-    </svg>
-    <h2 class="hero-text">You've successfully created an Electron project with Vue</h2>
-    <p class="hero-tagline">Please try pressing <code>F12</code> to open the devTool</p>
-
-    <div class="links">
-        <div class="link-item">
-            <a target="_blank" href="https://evite.netlify.app">Documentation</a>
-        </div>
-        <div class="link-item link-dot">•</div>
-        <div class="link-item">
-            <a target="_blank" href="https://github.com/alex8088/electron-vite">Getting Help</a>
-        </div>
-        <div class="link-item link-dot">•</div>
-        <div class="link-item">
-            <a target="_blank" href="https://github.com/alex8088/quick-start/tree/master/packages/create-electron"> create-electron </a>
-        </div>
+    <div class="mt-1 me-1 text-right">
+        <Button type="button" severity="secondary" icon="pi pi-cog" rounded class="options-button" @click="toggleOptionsOverlay" />
     </div>
-
-    <div class="features">
-        <div class="feature-item">
-            <article>
-                <h2 class="title">Configuring</h2>
-                <p class="detail">
-                    Config with <span>electron.vite.config.js</span> and refer to the
-                    <a target="_blank" href="https://evite.netlify.app/config/">config guide</a>.
-                </p>
-            </article>
-        </div>
-        <div class="feature-item">
-            <article>
-                <h2 class="title">HMR</h2>
-                <p class="detail">
-                    Edit <span>src/renderer</span> files to test HMR. See
-                    <a target="_blank" href="https://evite.netlify.app/guide/hmr-in-renderer.html">docs</a>.
-                </p>
-            </article>
-        </div>
-        <div class="feature-item">
-            <article>
-                <h2 class="title">Hot Reloading</h2>
-                <p class="detail">
-                    Run <span>'electron-vite dev --watch'</span> to enable. See
-                    <a target="_blank" href="https://evite.netlify.app/guide/hot-reloading.html">docs</a>.
-                </p>
-            </article>
-        </div>
-        <div class="feature-item">
-            <article>
-                <h2 class="title">Debugging</h2>
-                <p class="detail">
-                    Check out <span>.vscode/launch.json</span>. See <a target="_blank" href="https://evite.netlify.app/guide/debugging.html">docs</a>.
-                </p>
-            </article>
-        </div>
-        <div class="feature-item">
-            <article>
-                <h2 class="title">Source Code Protection</h2>
-                <p class="detail">
-                    Supported via built-in plugin <span>bytecodePlugin</span>. See
-                    <a target="_blank" href="https://evite.netlify.app/guide/source-code-protection.html"> docs </a>
-                    .
-                </p>
-            </article>
-        </div>
-        <div class="feature-item">
-            <article>
-                <h2 class="title">Packaging</h2>
-                <p class="detail">
-                    Use
-                    <a target="_blank" href="https://www.electron.build">electron-builder</a>
-                    and pre-configured to pack your app.
-                </p>
-            </article>
-        </div>
+    <div class="card-wrap">
+        <tem-card :tem="tem2" :label="'Left'"></tem-card>
+        <tem-card :tem="tem1" :label="'Right'"></tem-card>
     </div>
+    <data-file-indicator></data-file-indicator>
+    <tem-history></tem-history>
+    <OverlayPanel ref="optionsOverlayRef" class="settings-popover">
+        <div class="settings-wrap">
+            <b-form-checkbox v-model="settingsStore.showAnimatedTemGifs" size="sm">Animated GIFs</b-form-checkbox>
+            <b-form-checkbox v-model="settingsStore.showTypeLabels" size="sm">Type labels</b-form-checkbox>
+        </div>
+    </OverlayPanel>
 </template>
 
-<style lang="less">
-@import './assets/css/styles.less';
+<script setup>
+import { onMounted, ref } from 'vue';
+import { storeToRefs } from 'pinia';
+import axios from 'axios';
+import OverlayPanel from 'primevue/overlaypanel';
+import Button from 'primevue/button';
+
+import { useSettingsStore } from '@/store/settings';
+import { useTemStore } from '@/store/tem';
+import temCard from './components/temCard.vue';
+import temHistory from './components/temHistory.vue';
+import dataFileIndicator from './components/dataFileIndicator.vue';
+
+const REFRESH_INTERVAL_SECONDS = 1;
+
+const settingsStore = useSettingsStore();
+
+const temStore = useTemStore();
+const { tem1, tem2 } = storeToRefs(temStore);
+const optionsOverlayRef = ref();
+
+/**
+ * Lifecycle hooks
+ */
+onMounted(() => {
+    loadTemtemApiData();
+});
+
+/**
+ * Utility functions
+ */
+async function loadTemtemApiData() {
+    const temtems = await axios.get('https://temtem-api.mael.tech/api/temtems');
+    const traits = await axios.get('https://temtem-api.mael.tech/api/traits');
+    try {
+        temStore.setTemApiData(temtems.data);
+        temStore.setTraitApiData(traits.data);
+    } catch (e) {
+        console.error(e);
+    }
+    loadDataLoop();
+}
+
+async function loadDataLoop() {
+    const response = await axios
+        .get('/temdata.json')
+        .then(data => {
+            temStore.isJsonFileAvailable = true;
+            return data;
+        })
+        .catch(() => {
+            temStore.isJsonFileAvailable = false;
+        })
+        .finally(() => {
+            temStore.hasAttemptedJsonFileLoad = true;
+        });
+
+    try {
+        temStore.setTemParseData({ jsonData: response.data });
+    } catch (e) {
+        console.error(`[loadDataLoop] unable to load JSON data`, { error: e });
+    }
+
+    setTimeout(loadDataLoop, REFRESH_INTERVAL_SECONDS * 1000);
+}
+
+const toggleOptionsOverlay = event => {
+    optionsOverlayRef.value.toggle(event);
+};
+</script>
+
+<style lang="scss">
+.settings-popover .p-overlaypanel-content {
+    padding: 0.75rem 1rem;
+}
+</style>
+
+<style scoped lang="scss">
+.options-button {
+    opacity: 0.75;
+    transition: opacity 0.2s ease-in-out;
+    &:hover {
+        opacity: 1;
+    }
+}
+.settings-wrap {
+    text-align: left;
+    width: 8rem;
+    margin: 0 auto;
+
+    .form-check {
+        margin-bottom: -0.2rem;
+        font-size: 0.8rem;
+    }
+}
+.card-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    align-items: start;
+    width: 100%;
+    height: 100%;
+}
 </style>
