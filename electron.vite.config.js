@@ -13,10 +13,10 @@ export default defineConfig({
         plugins: [externalizeDepsPlugin()],
     },
     renderer: {
-        publicDir: resolve(__dirname, 'src/renderer/public'),
+        publicDir: resolve('src', 'renderer', 'public'),
         resolve: {
             alias: {
-                '@': resolve('src/renderer/src'),
+                '@': resolve('src', 'renderer', 'src'),
                 '~': resolve(__dirname, 'node_modules'),
             },
         },

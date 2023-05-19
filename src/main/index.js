@@ -3,11 +3,15 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils';
 import { join } from 'path';
 import fs from 'fs';
 import icon from '../../resources/Temtem_Logo.ico?asset';
+const { spawn } = require('child_process');
 
-const dirPath = join(__dirname, '../../resources/json'); // directory to watch
+const appPath = process.env.NODE_ENV === 'production' ? `${process.resourcesPath}` : __dirname;
+// replace app.asar with app.asar.unpacked to access the file in Production mode
+const dirPath = join(appPath, '..', '..', 'resources', 'AutoHotkey').replace('app.asar', 'app.asar.unpacked'); // directory to watch
 const fileName = 'temdata.json'; // file to watch
 
 let mainWindow;
+let childProcess;
 
 function createWindow() {
     // Create the browser window.
@@ -25,27 +29,30 @@ function createWindow() {
         },
     });
 
-    fs.watch(dirPath, (event, changedFileName) => {
-        if (changedFileName === fileName) {
-            const filePath = join(dirPath, changedFileName);
+    try {
+        fs.watch(dirPath, (event, changedFileName) => {
+            if (changedFileName === fileName) {
+                const filePath = join(dirPath, changedFileName);
 
-            try {
-                fs.readFile(filePath, 'utf-8', (err, data) => {
-                    if (err) {
-                        console.error(`[temJson:read] unable to read file?`, err);
-                        mainWindow.webContents.send('temJson:error', err);
-                        return;
-                    }
-
-                    // Success: file read
-                    mainWindow.webContents.send('temJson:updated', JSON.parse(data));
-                });
-            } catch (err) {
-                console.error(`[temJson:read] unable to read file?`, err);
-                mainWindow.webContents.send('temJson:error', err);
+                try {
+                    fs.readFile(filePath, 'utf-8', (err, data) => {
+                        if (err) {
+                            console.error(`[temJson:read] unable to read file?`, err);
+                            mainWindow.webContents.send('temJson:error', err);
+                            return;
+                        }
+                        //Success: file read
+                        mainWindow.webContents.send('temJson:updated', JSON.parse(data));
+                    });
+                } catch (err) {
+                    console.error(`[temJson:read] unable to read file?`, err);
+                    mainWindow.webContents.send('temJson:error', err);
+                }
             }
-        }
-    });
+        });
+    } catch (err) {
+        console.error(`[temJson:read] unable to read folder/file?`, err);
+    }
 
     mainWindow.on('ready-to-show', () => {
         mainWindow.show();
@@ -72,6 +79,13 @@ app.commandLine.appendSwitch('disable-background-timer-throttling');
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+    const exePath = join(dirPath, 'ScanTemtems.exe');
+
+    childProcess = spawn(exePath);
+    childProcess.on('error', error => {
+        console.error('Failed to start ScanTemtem subprocess.', error);
+    });
+
     // Set app user model id for windows
     electronApp.setAppUserModelId('com.electron');
 
@@ -89,6 +103,13 @@ app.whenReady().then(() => {
         // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+});
+
+app.on('before-quit', () => {
+    // terminate the child Temscanner process
+    if (childProcess) {
+        childProcess.kill();
+    }
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

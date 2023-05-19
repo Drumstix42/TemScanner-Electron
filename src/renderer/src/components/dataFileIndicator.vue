@@ -40,17 +40,21 @@ const secondCounter = useInterval(1 * 1000);
 const durationWarning = ref(false);
 const formattedTime = computed(() => new Date(temStore.jsonDateTime).toLocaleTimeString());
 
-watch(secondCounter, () => {
-    const now = new Date();
-    const diff = now - new Date(temStore.jsonDateTime);
-    const minutes = Math.floor(diff / 1000 / 60);
-    // if the difference between now and temStore.jsonDateTime is more than 1 minute, show a warning
-    if (minutes >= 1) {
-        durationWarning.value = true;
-    } else {
-        durationWarning.value = false;
-    }
-});
+watch(
+    secondCounter,
+    () => {
+        const now = new Date();
+        const diff = now - new Date(temStore.jsonDateTime);
+        const minutes = Math.floor(diff / 1000 / 60);
+        // if the difference between now and temStore.jsonDateTime is more than 1 minute, show a warning
+        if (minutes >= 1) {
+            durationWarning.value = true;
+        } else {
+            durationWarning.value = false;
+        }
+    },
+    { immediate: true },
+);
 </script>
 
 <style scoped lang="scss">

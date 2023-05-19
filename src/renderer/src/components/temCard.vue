@@ -22,7 +22,7 @@
                     <td>
                         <div class="d-flex align-items-center p-0">
                             <div v-for="(type, index) in temData.types" :key="type" class="tem-types flex-shrink-0">
-                                <img class="type-icon" :class="index !== 0 ? 'ps-2' : ''" :src="'/images/types/' + type + '.png'" />
+                                <img class="type-icon" :class="index !== 0 ? 'ps-2' : ''" :src="'./images/types/' + type + '.png'" />
                                 <span class="fs-small">{{ type }}</span>
                             </div>
                             <!-- select element with options generated from `temType` -->
@@ -37,7 +37,7 @@
                                 >
                                     <template #value="slotProps">
                                         <div v-if="slotProps.value" class="flex align-items-center">
-                                            <img class="type-icon" :src="'/images/types/' + slotProps.value.label + '.png'" />
+                                            <img class="type-icon" :src="'./images/types/' + slotProps.value.label + '.png'" />
                                             <div>{{ slotProps.value.label }}</div>
                                         </div>
                                         <span v-else>
@@ -46,7 +46,7 @@
                                     </template>
                                     <template #option="slotProps">
                                         <div class="flex align-items-center">
-                                            <img class="type-icon" :src="'/images/types/' + slotProps.option.label + '.png'" />
+                                            <img class="type-icon" :src="'./images/types/' + slotProps.option.label + '.png'" />
                                             <div>{{ slotProps.option.label }}</div>
                                         </div>
                                     </template>
@@ -105,7 +105,7 @@
                                         v-b-tooltip="typeModifier.type"
                                         class="type-multiplier-column d-flex flex-column"
                                     >
-                                        <img class="type-icon align-self-center" :src="'/images/types/' + typeModifier.type + '.png'" />
+                                        <img class="type-icon align-self-center" :src="'./images/types/' + typeModifier.type + '.png'" />
                                         <div v-if="settingsStore.showTypeLabels" class="type-label">{{ typeModifier.type }}</div>
                                         <div class="multiplier-wrap align-self-center">
                                             <div v-if="typeModifier.modifier === 0.5" class="value-box value-bad multiplier-value">&#189;</div>
@@ -133,7 +133,7 @@
                         <div class="fit-table-cell-width">
                             <div class="d-flex align-items-center">
                                 <div class="icon-vs-wrap d-flex align-items-center">
-                                    <img class="type-icon icon-vs" :src="'/images/types/' + temData.types[0] + '.png'" />
+                                    <img class="type-icon icon-vs" :src="'./images/types/' + temData.types[0] + '.png'" />
                                     <span class="fs-5">&#187;</span>
                                 </div>
                                 <div class="types-wrap d-flex flex-wrap align-items-center text-center">
@@ -143,7 +143,7 @@
                                         v-b-tooltip="typeModifier.type"
                                         class="type-multiplier-column d-flex flex-column"
                                     >
-                                        <img class="type-icon align-self-center" :src="'/images/types/' + typeModifier.type + '.png'" />
+                                        <img class="type-icon align-self-center" :src="'./images/types/' + typeModifier.type + '.png'" />
                                         <div v-if="settingsStore.showTypeLabels" class="type-label">{{ typeModifier.type }}</div>
                                         <div class="multiplier-wrap align-self-center">
                                             <div v-if="typeModifier.modifier === 0.5" class="value-box value-bad multiplier-value">&#189;</div>
@@ -161,7 +161,7 @@
 
                             <div v-if="temSecondaryType" class="d-flex align-items-center mt-2">
                                 <div class="icon-vs-wrap d-flex align-items-center">
-                                    <img class="type-icon icon-vs" :src="'/images/types/' + temSecondaryType + '.png'" />
+                                    <img class="type-icon icon-vs" :src="'./images/types/' + temSecondaryType + '.png'" />
                                     <span class="fs-5">&#187;</span>
                                 </div>
                                 <div class="types-wrap d-flex flex-wrap align-items-center text-center">
@@ -171,7 +171,7 @@
                                         v-b-tooltip="typeModifier.type"
                                         class="type-multiplier-column d-flex flex-column"
                                     >
-                                        <img class="type-icon align-self-center" :src="'/images/types/' + typeModifier.type + '.png'" />
+                                        <img class="type-icon align-self-center" :src="'./images/types/' + typeModifier.type + '.png'" />
                                         <div v-if="settingsStore.showTypeLabels" class="type-label">{{ typeModifier.type }}</div>
                                         <div class="multiplier-wrap align-self-center">
                                             <div v-if="typeModifier.modifier === 0.5" class="value-box value-bad multiplier-value">&#189;</div>
@@ -220,7 +220,7 @@
                         <div class="d-flex align-items-center">
                             <div v-for="(tvYield, key, index) in filteredTvYields" :key="key" class="lh-sm pe-2">
                                 <div class="stat-box d-flex align-items-center">
-                                    <img class="stat-icon" :class="index !== 0 ? 'ps-1' : ''" :src="'/images/stats/' + key + '.png'" />
+                                    <img class="stat-icon" :class="index !== 0 ? 'ps-1' : ''" :src="'./images/stats/' + key + '.png'" />
                                     <span class="text-uppercase fs-small">{{ key }}</span>
                                     <span class="ps-1 fs-small">+{{ tvYield }}</span>
                                 </div>
