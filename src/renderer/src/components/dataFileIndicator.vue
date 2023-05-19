@@ -13,31 +13,44 @@
         ></span>
         <span
             v-else-if="hasAttemptedJsonFileLoad && durationWarning"
-            v-b-tooltip.bottom="'No JSON data is imported for >1 minute, this is normal outside of combat. Otherwise, double check the AHK file is running.'"
+            v-b-tooltip.bottom="
+                'No JSON data is imported for >1 minute, this is normal outside of combat. Otherwise, double check the AHK file is running.'
+            "
             class="pi pi-info-circle"
         ></span>
         <span v-else-if="isJsonFileAvailable" v-b-tooltip.bottom="'JSON data importing successfully'" class="pi pi-check icon-green"></span>
         <span v-else v-b-tooltip.bottom="'Loading JSON data'" class="pi pi-spin pi-spinner"></span>
 
-        <div v-if="isJsonFileAvailable && isJsonFileValid" v-b-tooltip.right.offset300="'JSON data timestamp'" class="date-time py-1 px-2">{{ formattedTime }}</div>
+        <div v-if="isJsonFileAvailable && isJsonFileValid" v-b-tooltip.right.offset300="'JSON data timestamp'" class="date-time py-1 px-2">
+            {{ formattedTime }}
+        </div>
     </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useInterval } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { useTemStore } from '@/store/tem';
 
 const temStore = useTemStore();
 const { hasAttemptedJsonFileLoad, isJsonFileAvailable, isJsonFileValid } = storeToRefs(temStore);
-// if the difference between now and temStore.jsonDateTime is more than 1 minute, show a warning
-const durationWarning = computed(() => {
+
+const secondCounter = useInterval(1 * 1000);
+const durationWarning = ref(false);
+const formattedTime = computed(() => new Date(temStore.jsonDateTime).toLocaleTimeString());
+
+watch(secondCounter, () => {
     const now = new Date();
     const diff = now - new Date(temStore.jsonDateTime);
     const minutes = Math.floor(diff / 1000 / 60);
-    return minutes > 1;
+    // if the difference between now and temStore.jsonDateTime is more than 1 minute, show a warning
+    if (minutes >= 1) {
+        durationWarning.value = true;
+    } else {
+        durationWarning.value = false;
+    }
 });
-const formattedTime = computed(() => new Date(temStore.jsonDateTime).toLocaleTimeString());
 </script>
 
 <style scoped lang="scss">
@@ -70,7 +83,7 @@ const formattedTime = computed(() => new Date(temStore.jsonDateTime).toLocaleTim
     color: rgb(200, 200, 0);
 }
 .icon-green {
-    color: rgb(0, 200, 0);
+    color: rgb(0, 142, 0);
 }
 
 .date-time {

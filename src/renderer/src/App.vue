@@ -56,12 +56,31 @@ async function loadTemtemApiData() {
     } catch (e) {
         console.error(e);
     }
-    loadDataLoop();
+    electronDataInit();
+    /* loadDataLoop(); */
 }
 
-async function loadDataLoop() {
+function electronDataInit() {
+    window.api.send('temJson:read');
+    window.api.receive('temJson:exists', value => {
+        temStore.hasAttemptedJsonFileLoad = true;
+        temStore.isJsonFileAvailable = value;
+    });
+    window.api.receive('temJson:updated', data => {
+        temStore.hasAttemptedJsonFileLoad = true;
+        temStore.isJsonFileAvailable = true;
+        temStore.setTemParseData({ jsonData: data });
+        //console.debug(`[receive] temJson:updated`, data);
+    });
+    window.api.receive('temJson:error', err => {
+        temStore.hasAttemptedJsonFileLoad = true;
+        temStore.isJsonFileAvailable = false;
+    });
+}
+
+/* async function loadDataLoop() {
     const response = await axios
-        .get('/temdata.json')
+        .get('/json/temdata.json')
         .then(data => {
             temStore.isJsonFileAvailable = true;
             return data;
@@ -80,7 +99,7 @@ async function loadDataLoop() {
     }
 
     setTimeout(loadDataLoop, REFRESH_INTERVAL_SECONDS * 1000);
-}
+} */
 
 const toggleOptionsOverlay = event => {
     optionsOverlayRef.value.toggle(event);

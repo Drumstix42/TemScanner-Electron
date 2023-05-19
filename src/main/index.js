@@ -1,20 +1,50 @@
-import { app, shell, BrowserWindow } from 'electron';
+import { BrowserWindow, app, ipcMain, shell } from 'electron';
+import { electronApp, is, optimizer } from '@electron-toolkit/utils';
 import { join } from 'path';
-import { electronApp, optimizer, is } from '@electron-toolkit/utils';
-import icon from '../../resources/icon.png?asset';
+import fs from 'fs';
+import icon from '../../resources/Temtem_Logo.ico?asset';
+
+const dirPath = join(__dirname, '../../resources/json'); // directory to watch
+const fileName = 'temdata.json'; // file to watch
+
+let mainWindow;
 
 function createWindow() {
     // Create the browser window.
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 900,
-        height: 670,
+        height: 900,
         show: false,
         autoHideMenuBar: true,
-        ...(process.platform === 'linux' ? { icon } : {}),
+        icon,
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
             sandbox: false,
+            backgroundThrottling: false,
+            nodeIntegration: true,
         },
+    });
+
+    fs.watch(dirPath, (event, changedFileName) => {
+        if (changedFileName === fileName) {
+            const filePath = join(dirPath, changedFileName);
+
+            try {
+                fs.readFile(filePath, 'utf-8', (err, data) => {
+                    if (err) {
+                        console.error(`[temJson:read] unable to read file?`, err);
+                        mainWindow.webContents.send('temJson:error', err);
+                        return;
+                    }
+
+                    // Success: file read
+                    mainWindow.webContents.send('temJson:updated', JSON.parse(data));
+                });
+            } catch (err) {
+                console.error(`[temJson:read] unable to read file?`, err);
+                mainWindow.webContents.send('temJson:error', err);
+            }
+        }
     });
 
     mainWindow.on('ready-to-show', () => {
@@ -34,6 +64,9 @@ function createWindow() {
         mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
     }
 }
+
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -67,5 +100,39 @@ app.on('window-all-closed', () => {
     }
 });
 
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
+ipcMain.on('temJson:read', (event, args) => {
+    if (fs.existsSync(dirPath)) {
+        const filePath = join(dirPath, fileName);
+
+        try {
+            if (!fs.existsSync(filePath)) {
+                console.debug(`[temJson:read] file does not exist`);
+                mainWindow.webContents.send('temJson:exists', false);
+                return;
+            }
+
+            // Success: file exists
+            mainWindow.webContents.send('temJson:exists', true);
+        } catch (err) {
+            console.error(`[temJson:read] unable to find file?`, err);
+            mainWindow.webContents.send('temJson:exists', false);
+        }
+
+        try {
+            fs.readFile(filePath, 'utf-8', (err, data) => {
+                if (err) {
+                    console.error('There was an error reading the file!', err);
+                    mainWindow.webContents.send('temJson:error', err);
+                    return;
+                }
+                // Success: file read
+                mainWindow.webContents.send('temJson:updated', JSON.parse(data));
+            });
+        } catch (err) {
+            console.error(`[temJson:read] unable to read file?`, err);
+            mainWindow.webContents.send('temJson:error', err);
+        }
+    } else {
+        mainWindow.webContents.send('temJson:exists', false);
+    }
+});
