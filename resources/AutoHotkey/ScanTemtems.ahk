@@ -87,9 +87,9 @@ isGameWindowAvailable(hWnd) {
 }
 
 scanTemtems() {
-    if !FileExist("temdata.json") {
-        ;MsgBox % parentDirectory "temdata.json"
-        FileAppend {}, % "temdata.json"
+    if !FileExist(parentDirectory . "/AutoHotkey/temdata.json") {
+        ;MsgBox % parentDirectory "/AutoHotkey/temdata.json"
+        FileAppend {}, % parentDirectory "/AutoHotkey/temdata.json"
     }
 
     if !WinActive(WINDOW_NAME) {
@@ -119,7 +119,7 @@ scanTemtems() {
     ; JSON ISO, UTC time
     FormatTime, currentDateTime, %A_NowUTC%, yyyy-MM-ddTHH:mm:ssZ
 
-    jf := new JSONFile("temdata.json")
+    jf := new JSONFile(parentDirectory "/AutoHotkey/temdata.json")
     jf.tem1 := { "name": Trim(tem1), "active": isTem1Available() }
     jf.tem2 := { "name": Trim(tem2), "active": isTem2Available() }
     jf.timestamp := currentTime
