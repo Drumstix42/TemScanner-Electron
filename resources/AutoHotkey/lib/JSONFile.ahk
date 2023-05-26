@@ -1,3 +1,4 @@
+; ? https://www.autohotkey.com/boards/viewtopic.php?p=307612#p307612
 class JsonFile {
     ; class JsonFile extends JSON {
     __New(filePath,saveOnExit:=""){

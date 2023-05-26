@@ -1,3 +1,4 @@
+; ? https://www.autohotkey.com/board/topic/38414-pixelcolorx-y-window-transp-off-screen-etc-windows/?p=242401
 ; Coordinates are related to the window's client area
 ; e.g. pxValue := PixelColorSimple("Window Name", 25, 25)
 PixelColorSimple(pc_wID, pc_x, pc_y) {

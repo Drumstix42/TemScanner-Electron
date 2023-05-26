@@ -1,7 +1,7 @@
 {
   "name": "temscanner-electron",
   "version": "1.0.0",
-  "description": "An Electron application with Vue",
+  "description": "Temtem UI assistant (Electron web app) for automatically displaying Wiki/API data using OCR text recognition (via Autohotkey)",
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://www.electronjs.org",

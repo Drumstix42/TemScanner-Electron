@@ -26,5 +26,5 @@ out
 
 # App specific
 public/temdata.json
-resources/AutoHotkey/ScanTemtems.exe
+resources/AutoHotkey/TemtemOCR.exe
 resources/AutoHotkey/temdata.json

@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: temscanner-electron
+productName: TemScanner
 directories:
   buildResources: build
 files:

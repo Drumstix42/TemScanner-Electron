@@ -1,3 +1,4 @@
+; ? [modified] version of https://www.autohotkey.com/boards/viewtopic.php?p=349744#p349744
 #NoEnv
 #singleinstance, force			; force, ignore, off
 SetBatchLines, -1 				; For speed in general

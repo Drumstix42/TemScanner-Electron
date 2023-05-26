@@ -79,7 +79,7 @@ app.commandLine.appendSwitch('disable-background-timer-throttling');
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-    const exePath = join(dirPath, 'ScanTemtems.exe');
+    const exePath = join(dirPath, 'TemtemOCR.exe');
 
     childProcess = spawn(exePath);
     childProcess.on('error', error => {
