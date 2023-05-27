@@ -15,7 +15,6 @@ Menu, Tray, Tip, % "Temtem OCR for Temscanner"
 #include %A_ScriptDir%/lib/JSON.ahk
 #include %A_ScriptDir%/lib/JSONFile.ahk
 #include %A_ScriptDir%/lib/OCRScreenRegion.ahk
-#include %A_ScriptDir%/lib/PixelColor.ahk
 
 ; ------------------------------
 ; DIRECTORY
@@ -57,7 +56,7 @@ global WINDOW_CLIENT_H := NumGet(&RECT, 12, "Int")
 ; ! Sometimes the window size is the expected size, and sometimes the client is the expected size (based on Windowed vs Borderless)
 ; * Window resolution table
 global r2560x1440 := { "MINIMAP_BLUE_BORDER_X": 2360, "MINIMAP_BLUE_BORDER_Y": 45, "TEM_NAMEPLATE1_X": 2090, "TEM_NAMEPLATE1_Y": 204, "TEM_NAMEPLATE2_X": 1560, "TEM_NAMEPLATE2_Y": 130, "TEM_NAME_WIDTH": 310, "TEM_NAME_HEIGHT": 120, "TEM_NAME1_X_START": 2034, "TEM_NAME1_Y_START": 108, "TEM_NAME2_X_START": 1502, "TEM_NAME2_Y_START": 34 }
-global r1920x1080 := { "MINIMAP_BLUE_BORDER_X": 1760, "MINIMAP_BLUE_BORDER_Y": 30, "TEM_NAMEPLATE1_X": 1565, "TEM_NAMEPLATE1_Y": 130, "TEM_NAMEPLATE2_X": 1185, "TEM_NAMEPLATE2_Y": 95, "TEM_NAME_WIDTH": 250, "TEM_NAME_HEIGHT": 90, "TEM_NAME1_X_START": 1517, "TEM_NAME1_Y_START": 76, "TEM_NAME2_X_START": 1134, "TEM_NAME2_Y_START": 23 }
+global r1920x1080 := { "MINIMAP_BLUE_BORDER_X": 1760, "MINIMAP_BLUE_BORDER_Y": 30, "TEM_NAMEPLATE1_X": 1557, "TEM_NAMEPLATE1_Y": 150, "TEM_NAMEPLATE2_X": 1185, "TEM_NAMEPLATE2_Y": 95, "TEM_NAME_WIDTH": 250, "TEM_NAME_HEIGHT": 90, "TEM_NAME1_X_START": 1530, "TEM_NAME1_Y_START": 76, "TEM_NAME2_X_START": 1150, "TEM_NAME2_Y_START": 23 }
 global RESOLUTIONS_TABLE := { "r2560x1440": r2560x1440, "r1920x1080": r1920x1080 }
 
 global RESOLUTION_WINDOW_KEY := "r" . WINDOW_W . "x" . WINDOW_H
@@ -105,17 +104,18 @@ global TEM_NAME2_Y_END := TEM_NAME2_Y_START + TEM_NAME_HEIGHT
 ; FUNCTIONS
 ; ------------------------------
 isTem1Available() {
-    pxValue := PixelColorSimple(WINDOW_UID, TEM_NAMEPLATE1_X, TEM_NAMEPLATE1_Y)
+    PixelGetColor, pxValue, TEM_NAMEPLATE1_X, TEM_NAMEPLATE1_Y, RGB
+    ;Tooltip, %pxValue% - resolution: %RESOLUTION_KEY%, 0, 0
     return pxValue = TEM_NAMEPLATE_BG_COLOR
 }
 
 isTem2Available() {
-    pxValue := PixelColorSimple(WINDOW_UID, TEM_NAMEPLATE2_X, TEM_NAMEPLATE2_Y)
+    PixelGetColor, pxValue, TEM_NAMEPLATE2_X, TEM_NAMEPLATE2_Y, RGB
     return pxValue = TEM_NAMEPLATE_BG_COLOR
 }
 
 isOutOfCombat() {
-    pxValue := PixelColorSimple(WINDOW_UID, MINIMAP_BLUE_BORDER_X, MINIMAP_BLUE_BORDER_Y)
+    PixelGetColor, pxValue, MINIMAP_BLUE_BORDER_X, MINIMAP_BLUE_BORDER_Y, RGB
     ; * minimap doesn't show in combat
     return pxValue = MINIMAP_BLUE_BORDER_COLOR
 }
