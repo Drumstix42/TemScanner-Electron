@@ -1,6 +1,6 @@
 #SingleInstance, force ; force, ignore, off
 #MaxThreadsPerHotkey 2
-CoordMode, Screen
+CoordMode, Pixel, Client
 
 ; Set Icon
 I_ICON = %A_ScriptDir%\icon.ico
@@ -22,6 +22,12 @@ Menu, Tray, Tip, % "Temtem OCR for Temscanner"
 ; ------------------------------
 global parentDirectory := SubStr(A_ScriptDir, 1, InStr(SubStr(A_ScriptDir,1,-1), "\", 0, 0)-1)
 ;MsgBox %parentDirectory%
+
+; ------------------------------
+; WAIT FOR GAME WINDOW
+; ------------------------------
+While !WinExist("ahk_exe Temtem.exe")
+    Sleep, 500
 
 ; ------------------------------
 ; VARIABLES
@@ -50,9 +56,8 @@ global WINDOW_CLIENT_H := NumGet(&RECT, 12, "Int")
 
 ; ! Sometimes the window size is the expected size, and sometimes the client is the expected size (based on Windowed vs Borderless)
 ; * Window resolution table
-global r2560x1440 := { "MINIMAP_BLUE_BORDER_X": 2360, "MINIMAP_BLUE_BORDER_Y": 45, "TEM_NAMEPLATE1_X": 2090, "TEM_NAMEPLATE1_Y": 204, "TEM_NAMEPLATE2_X": 1560, "TEM_NAMEPLATE2_Y": 130, "TEM_NAME1_X_START": 2034, "TEM_NAME1_Y_START": 108, "TEM_NAME2_X_START": 1502, "TEM_NAME2_Y_START": 34 }
-; TODO: finish 1080p locations (test Wild + PVP)
-global r1920x1080 := { "MINIMAP_BLUE_BORDER_X": 1760, "MINIMAP_BLUE_BORDER_Y": 30, "TEM_NAMEPLATE1_X": 1565, "TEM_NAMEPLATE1_Y": 145, "TEM_NAMEPLATE2_X": 1180, "TEM_NAMEPLATE2_Y": 95 }
+global r2560x1440 := { "MINIMAP_BLUE_BORDER_X": 2360, "MINIMAP_BLUE_BORDER_Y": 45, "TEM_NAMEPLATE1_X": 2090, "TEM_NAMEPLATE1_Y": 204, "TEM_NAMEPLATE2_X": 1560, "TEM_NAMEPLATE2_Y": 130, "TEM_NAME_WIDTH": 310, "TEM_NAME_HEIGHT": 120, "TEM_NAME1_X_START": 2034, "TEM_NAME1_Y_START": 108, "TEM_NAME2_X_START": 1502, "TEM_NAME2_Y_START": 34 }
+global r1920x1080 := { "MINIMAP_BLUE_BORDER_X": 1760, "MINIMAP_BLUE_BORDER_Y": 30, "TEM_NAMEPLATE1_X": 1565, "TEM_NAMEPLATE1_Y": 130, "TEM_NAMEPLATE2_X": 1185, "TEM_NAMEPLATE2_Y": 95, "TEM_NAME_WIDTH": 250, "TEM_NAME_HEIGHT": 90, "TEM_NAME1_X_START": 1517, "TEM_NAME1_Y_START": 76, "TEM_NAME2_X_START": 1134, "TEM_NAME2_Y_START": 23 }
 global RESOLUTIONS_TABLE := { "r2560x1440": r2560x1440, "r1920x1080": r1920x1080 }
 
 global RESOLUTION_WINDOW_KEY := "r" . WINDOW_W . "x" . WINDOW_H
@@ -73,10 +78,6 @@ else
     ExitApp
 }
 
-; TODO: does this width/height need to be resolution specific? (Probably, yes)
-global TEM_NAME_WIDTH := 310 ; width of the OCR area
-global TEM_NAME_HEIGHT := 120 ; height of the OCR area
-
 global MINIMAP_BLUE_BORDER_X := RESOLUTIONS_TABLE[RESOLUTION_KEY]["MINIMAP_BLUE_BORDER_X"]
 global MINIMAP_BLUE_BORDER_Y := RESOLUTIONS_TABLE[RESOLUTION_KEY]["MINIMAP_BLUE_BORDER_Y"]
 
@@ -85,6 +86,9 @@ global TEM_NAMEPLATE1_X := RESOLUTIONS_TABLE[RESOLUTION_KEY]["TEM_NAMEPLATE1_X"]
 global TEM_NAMEPLATE1_Y := RESOLUTIONS_TABLE[RESOLUTION_KEY]["TEM_NAMEPLATE1_Y"]
 global TEM_NAMEPLATE2_X := RESOLUTIONS_TABLE[RESOLUTION_KEY]["TEM_NAMEPLATE2_X"]
 global TEM_NAMEPLATE2_Y := RESOLUTIONS_TABLE[RESOLUTION_KEY]["TEM_NAMEPLATE2_Y"]
+
+global TEM_NAME_WIDTH := RESOLUTIONS_TABLE[RESOLUTION_KEY]["TEM_NAME_WIDTH"]
+global TEM_NAME_HEIGHT := RESOLUTIONS_TABLE[RESOLUTION_KEY]["TEM_NAME_HEIGHT"]
 
 ; these coordinates define the OCR area within the Template (with some padding to help OCR sucess rate)
 global TEM_NAME1_X_START := RESOLUTIONS_TABLE[RESOLUTION_KEY]["TEM_NAME1_X_START"]
@@ -101,17 +105,17 @@ global TEM_NAME2_Y_END := TEM_NAME2_Y_START + TEM_NAME_HEIGHT
 ; FUNCTIONS
 ; ------------------------------
 isTem1Available() {
-    pxValue := PixelColorSimple(WINDOW_EXE, TEM_NAMEPLATE1_X, TEM_NAMEPLATE1_Y)
+    pxValue := PixelColorSimple(WINDOW_UID, TEM_NAMEPLATE1_X, TEM_NAMEPLATE1_Y)
     return pxValue = TEM_NAMEPLATE_BG_COLOR
 }
 
 isTem2Available() {
-    pxValue := PixelColorSimple(WINDOW_EXE, TEM_NAMEPLATE2_X, TEM_NAMEPLATE2_Y)
+    pxValue := PixelColorSimple(WINDOW_UID, TEM_NAMEPLATE2_X, TEM_NAMEPLATE2_Y)
     return pxValue = TEM_NAMEPLATE_BG_COLOR
 }
 
 isOutOfCombat() {
-    pxValue := PixelColorSimple(WINDOW_EXE, MINIMAP_BLUE_BORDER_X, MINIMAP_BLUE_BORDER_Y)
+    pxValue := PixelColorSimple(WINDOW_UID, MINIMAP_BLUE_BORDER_X, MINIMAP_BLUE_BORDER_Y)
     ; * minimap doesn't show in combat
     return pxValue = MINIMAP_BLUE_BORDER_COLOR
 }

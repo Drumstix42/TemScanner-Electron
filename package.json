@@ -1,6 +1,6 @@
 {
   "name": "temscanner-electron",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Temtem UI assistant (local Electron web app) for automatically displaying Wiki/API data using AutoHotkey v1 and OCR text recognition.",
   "main": "./out/main/index.js",
   "author": "Drumstix42",

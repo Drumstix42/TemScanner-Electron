@@ -2,7 +2,7 @@
 
 Temtem UI assistant (local [Electron](https://www.electronjs.org/) web app) for automatically displaying Wiki/API data using [AutoHotkey v1](https://www.autohotkey.com/) and [OCR text recognition](https://learn.microsoft.com/en-us/uwp/api/windows.media.ocr?view=winrt-22621).
 
-<img src="resources/screenshots/TemScanner_example1.png" width="500">
+<img src="resources/screenshots/TemScanner_example1.png">
 
 ## Disclaimer
 
@@ -11,6 +11,18 @@ Temtem UI assistant (local [Electron](https://www.electronjs.org/) web app) for 
 -   Does **NOT** send any requests to game
 -   Does **NOT** intercept any game data
 -   Will **NOT** get you banned
+
+## Details
+
+The app will display a "Left" and "Right" panel, based on the active Tems on the enemy side of the battle. As shown in the screenshot above, you get the name, #, type information/modifiers, and more. Any embedded links lead to [Temtem Wiki](https://temtem.wiki.gg/wiki/Temtem_Wiki) pages for more information. Additionally, special tems like [Koish](https://temtem.wiki.gg/wiki/Koish) and [Chromeon](https://temtem.wiki.gg/wiki/Chromeon) allow you to manually set their secondary Type, and even specify their conditional traits for more accurate type bonuses/weaknesses.
+
+When you defeat a Tem, the Left/Right panel will clear, except when you defeat the final/solo enemy Tem. This is to avoid clearing the panels when navigating sub-menus, or when the OCR fails detection for whatever reason.
+
+At the top-right of the page there is an "Options" cog to toggle some settings for the UI. And in the top-left there is some debug information to help understand what the app is doing via OCR and Autohotkey data updates.
+
+At the bottom of the page, there is a "Recent" row which shows up to 10 of the most recent Tems you've encountered, and does not show duplicates.
+
+> If you have additional suggestions, feel free to [Open an Issue](https://github.com/Drumstix42/TemScanner-Electron/issues).
 
 # How it works
 
@@ -72,6 +84,10 @@ The Autohotkey script _CAN_ be separately built if you have [AutoHotkey v1](http
 -   Backup/rename the existing `TemScanner.exe` file
 -   Right-click the `TemScanner.ahk` file, and select `Compile Script` to build the EXE file (**Note**: AHK v1 must be installed with the `AHK Compiler` option selected)
 
+## Known Issues
+
+If you change your game resolution, you will likely need to restart the app for the OCR to work correctly.
+
 # Project Development
 
 ### Recommended IDE Setup
@@ -109,3 +125,10 @@ $ yarn dev
 # For windows (the only currently targeted OS)
 $ yarn build:win
 ```
+
+# ✅ TODO's
+
+-   [ ] Add support for more resolutions
+-   [ ] Ability to search for Temtem by name within the app
+-   [ ] Determine if game resolution has changed while app is running
+-   [ ] Auto-updater for app?
