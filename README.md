@@ -70,7 +70,9 @@ After confirming the application is safe to run (as needed), you can proceed wit
 
 The OCR isn't perfect! But it works well in most scenarios.
 
--   A different 3rd party OCR engine that supports custom fonts would likely improve accuracy/simplify code. The moving battle camera can sometimes cause the OCR to struggle, but it will retry every 1 second. Otherwise, the OCR is fairly reliable as-is.
+**The game window MUST be set to Fullscreen or Windowed Fullscreen for the OCR to work.** And the game resolution in Borderless will need to match your monitor size. This is a current limitation of the OCR code. (I can't seem to get it to target the inner window coordinates).
+
+-   A different 3rd party OCR engine that supports Custom Fonts would likely improve accuracy/simplify code. The moving battle camera can sometimes cause the OCR to struggle, but it will retry every 1 second. Otherwise, the OCR is fairly reliable as-is.
 -   I've toyed with the idea of using Python instead of Authotkey, but I don't have development experience there.
 -   The internal JavaScript logic has a dictionary of failed OCR patterns based on play testing, and otherwise matches Tem names at ~80% confidence to improve the app functionality.
 
