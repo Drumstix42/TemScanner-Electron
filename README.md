@@ -1,6 +1,8 @@
 # TemScanner-Electron
 
-Temtem UI assistant (Electron web app) for automatically displaying Wiki/API data using OCR text recognition (via Autohotkey).
+Temtem UI assistant (local [Electron](https://www.electronjs.org/) web app) for automatically displaying Wiki/API data using [AutoHotkey v1](https://www.autohotkey.com/) and [OCR text recognition](https://learn.microsoft.com/en-us/uwp/api/windows.media.ocr?view=winrt-22621).
+
+<img src="resources/screenshots/TemScanner_example1.png" width="500">
 
 ## Disclaimer
 
@@ -10,28 +12,71 @@ Temtem UI assistant (Electron web app) for automatically displaying Wiki/API dat
 -   Does **NOT** intercept any game data
 -   Will **NOT** get you banned
 
-## How it works
+# How it works
 
--   Loads the Temtem API data available at https://temtem-api.mael.tech/ to populate Temtem information to the webapp UI
--   Uses [Autohotkey v1](https://www.autohotkey.com/) and the [Windows built-in OCR](https://learn.microsoft.com/en-us/uwp/api/windows.media.ocr?view=winrt-22621) methods to read the Temtem name labels from the game windows
-    -  Autohotkey uses pixel detection to determine if the game is currently in battle and which Temtem is currently active on the enemy side. Currently it only supports 1440p and 1080p resolutions. More will likely be added with testing.
-    -  Autohotkey outputs the OCR text recognition result to a JSON file in the `temscanner-electron\resources\app.asar.unpacked\resources\AutoHotkey` folder
-        - To reduce writes to the local disk, the JSON file is only written to during combat
-    -  The Electron app (the web application exe itself) reads the JSON file whenever it changes, and matches against the data populated from the API data noted above
+The app loads the Temtem API data available at https://temtem-api.mael.tech/ to populate Temtem information within the app.
 
-## Notes
--  The OCR isn't perfect! A dedicated, 3rd party OCR engine that supports Temtem's custom font better would likely improve accuracy. But currently the matching works in most combat scenarios. The moving battle camera can sometimes struggle, but the OCR will retry every 1 second.
--  The internal JavaScript logic has pre-configuration for OCR patterns based on play testing, and matches Tem names at ~80% confidence
--  Please don't blindly run EXE files provided from the internet when possible. Look through the source code, and build the app yourself if you are not comfortable with the provided EXE file.
--  The Autohotkey script can also be separately built if you have [Autohotkey v1](https://www.autohotkey.com/) installed
-    - Navigate to the `temscanner-electron\resources\app.asar.unpacked\resources\AutoHotkey` folder, right-click the `TemScanner.ahk` file, and select `Compile Script` to build the EXE file
+A sub-routine uses [AutoHotkey v1](https://www.autohotkey.com/) and the [Windows built-in OCR](https://learn.microsoft.com/en-us/uwp/api/windows.media.ocr?view=winrt-22621) to determine the Temtem name labels from the game window.
 
-## Project Setup
+-   Autohotkey uses pixel detection to determine if the game is currently in battle and which Temtem is currently active on the enemy side. Currently it only supports 1440p and 1080p resolutions. More will likely be added with testing.
+-   Autohotkey outputs the OCR text recognition result to a JSON file in the `<install-folder>/temscanner-electron/resources/app.asar.unpacked/resources/AutoHotkey` folder
+    -   To reduce writes to the local disk, the JSON file is only written during combat
+-   The Electron app reads the JSON file whenever it changes, and matches against the data populated from the API data noted above
+
+# Application Usage
+
+## How To Install
+
+-   Download the ` temscanner-electron-*-setup.exe` file from the [latest release](https://github.com/Drumstix42/TemScanner-Electron/releases/latest) page.
+-   Run the file to install the application.
+    -   The installer will create a Desktop shortcut and Start Menu shortcut.
+    -   The application will automatically start after installation.
+    -   The application can be uninstalled normally as needed. See the [How To Uninstall](#how-to-uninstall) section below for more information.
+
+### 📖 Smart Screen Warning
+
+Since I don't have a [code signing certificate](https://learn.microsoft.com/en-us/windows-hardware/drivers/dashboard/code-signing-cert-manage) for [Electron builds](https://www.electronjs.org/docs/latest/tutorial/code-signing), Windows may warn you that the application is from an unknown publisher. You can safely ignore this warning and run the application.
+
+| Step 1                                                              | Step 2                                                              |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| <img src="resources/screenshots/SmartScreen_step1.png" width="350"> | <img src="resources/screenshots/SmartScreen_step2.png" width="350"> |
+
+> Please see the [Notes](#notes) section below for more information about the application, and how you can optionally build it yourself.
+
+After confirming the application is safe to run (as needed), you can proceed with the installation:
+
+<img src="resources/screenshots/Setup_example1.png" width="350">
+
+## How To Uninstall
+
+-   Navigate to `Add or remove programs` in Windows.
+-   Find `TemScanner` in the list of installed applications.
+-   Click on the row, and then click `Uninstall`.
+-   _Alternatively_, you can manually navigate to the `temscanner-electron` folder (`<drive>:/Users/<username>/AppData/Local/Programs/temscanner-electron`) and run the `Uninstall temscanner-electron.exe` file.
+
+# Notes
+
+The OCR isn't perfect! But it works well in most scenarios.
+
+-   A different 3rd party OCR engine that supports custom fonts would likely improve accuracy/simplify code. The moving battle camera can sometimes cause the OCR to struggle, but it will retry every 1 second. Otherwise, the OCR is fairly reliable as-is.
+-   I've toyed with the idea of using Python instead of Authotkey, but I don't have development experience there.
+-   The internal JavaScript logic has a dictionary of failed OCR patterns based on play testing, and otherwise matches Tem names at ~80% confidence to improve the app functionality.
+
+> **Please don't blindly run `.exe` files provided from the internet when possible.** Take a look through the source code, and if comfortable with build tools, try building the app yourself instead of using the supplied EXE on the release page.
+
+Note that the main app `.exe` file _is_ built here on Github, using the Electron Builder action. However, the Autohotkey script has been pre-compiled, mainly so the end user doesn't have to install AutoHotkey v1 to run the app...
+
+The Autohotkey script _CAN_ be separately built if you have [AutoHotkey v1](https://www.autohotkey.com/) installed:
+
+-   Navigate to the `<drive>:/Users/<username>/AppData/Local/Programs/temscanner-electron/resources/app.asar.unpacked/resources/AutoHotkey` folder
+-   Backup/rename the existing `TemScanner.exe` file
+-   Right-click the `TemScanner.ahk` file, and select `Compile Script` to build the EXE file (**Note**: AHK v1 must be installed with the `AHK Compiler` option selected)
+
+# Project Development
 
 ### Recommended IDE Setup
 
 -   [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
-
 
 ### CLI Prerequisites
 
@@ -44,7 +89,7 @@ Temtem UI assistant (Electron web app) for automatically displaying Wiki/API dat
 -   [Vue 3](https://vuejs.org/)
 -   [Vite](https://vitejs.dev/)
 -   [electron-vite](https://evite.netlify.app/)
--   [Autohotkey v1](https://www.autohotkey.com/)
+-   [AutoHotkey v1](https://www.autohotkey.com/)
 
 ### Install
 
@@ -62,5 +107,5 @@ $ yarn dev
 
 ```bash
 # For windows (the only currently targeted OS)
-$ npm run build:win
+$ yarn build:win
 ```
